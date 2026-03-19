@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sardor — Playable Ads Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #08090d;
+  --surface: #11131a;
+  --surface-hover: #181b25;
+  --border: #1e2130;
+  --border-accent: #2a2d42;
+  --text: #e8e9ed;
+  --text-dim: #6b6f82;
+  --text-muted: #3d4058;
+  --accent: #5cff95;
+  --accent-dim: rgba(92, 255, 149, 0.08);
+  --accent-glow: rgba(92, 255, 149, 0.15);
+  --pink: #ff5caa;
+  --blue: #5c8cff;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 80px 80px;
+  opacity: 0.25;
+  mask-image: radial-gradient(ellipse 70% 50% at 50% 30%, black 20%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Header ─── */
+header {
+  padding: 20px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(16px);
+  background: rgba(8, 9, 13, 0.8);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.logo span { color: var(--accent); }
+
+nav { display: flex; gap: 8px; }
+
+nav a {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-dim);
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 100px;
+  transition: all 0.2s;
+}
+
+nav a:hover {
+  color: var(--text);
+  background: var(--accent-dim);
+}
+
+/* ─── Hero ─── */
+.hero {
+  padding: 120px 0 80px;
+  text-align: center;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px 6px 8px;
+  background: var(--accent-dim);
+  border: 1px solid rgba(92, 255, 149, 0.12);
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent);
+  margin-bottom: 32px;
+  animation: fadeUp 0.6s ease-out;
+}
+
+.hero-badge .dot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: blink 2s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.hero h1 {
+  font-size: clamp(40px, 7vw, 72px);
+  font-weight: 700;
+  letter-spacing: -2px;
+  line-height: 1.05;
+  margin-bottom: 20px;
+  animation: fadeUp 0.6s ease-out 0.1s both;
+}
+
+.hero h1 .gradient {
+  background: linear-gradient(135deg, var(--accent), var(--blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p {
+  font-size: 17px;
+  color: var(--text-dim);
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.6;
+  animation: fadeUp 0.6s ease-out 0.2s both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Section ─── */
+.section { padding: 80px 0; }
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 48px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+}
+
+.section-title span {
+  color: var(--accent);
+  margin-right: 8px;
+  font-family: 'Space Mono', monospace;
+}
+
+/* ─── Cards ─── */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: fadeUp 0.5s ease-out both;
+}
+
+.card:hover {
+  border-color: var(--border-accent);
+  background: var(--surface-hover);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3), 0 0 0 1px var(--border-accent);
+}
+
+.card-thumb {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.card-thumb .iframe-preview {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  border: none;
+  pointer-events: none;
+  transform-origin: top center;
+}
+
+.card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.card:hover .card-thumb img { transform: scale(1.05); }
+
+.card-thumb .play-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 9, 13, 0.5);
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 2;
+}
+
+.card:hover .play-overlay { opacity: 1; }
+
+.play-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 32px var(--accent-glow);
+  transition: transform 0.2s;
+}
+
+.card:hover .play-icon { transform: scale(1.1); }
+
+.play-icon svg { margin-left: 3px; }
+
+.card-body { padding: 20px; }
+.card-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+
+.card-desc {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.card-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: 'Space Mono', monospace;
+}
+
+.card-meta .accent-value { color: var(--accent); }
+
+/* ─── Modal ─── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 9, 13, 0.92);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalIn 0.3s ease-out;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-title { font-size: 15px; font-weight: 600; }
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: var(--surface-hover);
+  color: var(--text-dim);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 18px;
+}
+
+.modal-close:hover { background: var(--border); color: var(--text); }
+
+.modal-frame-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  background: #000;
+}
+
+.modal-frame-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.modal-info {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+}
+
+.modal-info p { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+
+.modal-info .meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.modal-info .meta-pill {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+
+/* ─── Tech ─── */
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.tech-item {
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+}
+
+.tech-item:hover { border-color: var(--border-accent); background: var(--surface-hover); }
+.tech-item .name { font-size: 14px; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.tech-item .desc { font-size: 12px; color: var(--text-muted); }
+
+.tech-custom { border-color: rgba(92, 255, 149, 0.1); }
+.tech-custom:hover { border-color: rgba(92, 255, 149, 0.25); }
+
+.custom-badge {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid rgba(92, 255, 149, 0.15);
+}
+
+/* ─── Footer ─── */
+footer {
+  padding: 40px 0;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+footer p { font-size: 13px; color: var(--text-muted); }
+footer a { color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+footer a:hover { color: var(--accent); }
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .hero { padding: 80px 0 60px; }
+  .cards-grid { grid-template-columns: 1fr; }
+  nav { display: none; }
+  .modal { max-width: 100%; border-radius: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+
+<header>
+  <div class="container header-inner">
+    <a href="#" class="logo">sardor<span>.</span>dev</a>
+    <nav>
+      <a href="#work">Work</a>
+      <a href="#stack">Toolkit</a>
+      <a href="https://github.com/nicenemo" target="_blank">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge"><span class="dot"></span> Available for projects</div>
+    <h1>Playable Ads<br><span class="gradient">That Convert</span></h1>
+    <p>Interactive advertising creatives built with Cocos Creator 3.8.x. Optimized for engagement, performance, and strict file size limits across all major ad networks.</p>
+  </div>
+</section>
+
+<section class="section" id="work">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title"><span>01</span> Selected Work</h2>
+    </div>
+    <div class="cards-grid" id="cardsGrid"></div>
+  </div>
+</section>
+
+<section class="section" id="stack">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title"><span>02</span> Toolkit</h2>
+    </div>
+    <div class="tech-grid" id="techGrid"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>Built with Cocos Creator 3.8.x &middot; <a href="https://github.com/nicenemo" target="_blank">GitHub</a></p>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle"></span>
+      <button class="modal-close" id="modalClose">&times;</button>
+    </div>
+    <div class="modal-frame-wrap">
+      <iframe id="modalFrame" allowfullscreen allow="autoplay"></iframe>
+    </div>
+    <div class="modal-info" id="modalInfo"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  DATA — Add / edit your playables here
+//
+//  thumb  → optional image path. If omitted, a live iframe
+//           preview renders automatically (like Google Drive).
+//  src    → path to playable HTML relative to this index.html
+// ═══════════════════════════════════════════════════════════════
+
+const PLAYABLES = [
+  {
+    title: "House Clean",
+    description: "Match-to-design home renovation playable with room cleaning mechanics.",
+    src: "playables/house-clean.html",
+    date: "2026-01",
+    fileSize: "4.8 MB",
+  },
+  {
+    title: "Drop Merge",
+    description: "Drop & merge number puzzle with satisfying chain combos.",
+    src: "playables/drop-merge.html",
+    date: "2025-11",
+    fileSize: "3.0 MB",
+  },
+  {
+    title: "Spider Solitaire",
+    description: "Classic spider solitaire card game with drag-and-drop interaction.",
+    src: "playables/spider-solitaire.html",
+    date: "2025-12",
+    fileSize: "3.8 MB",
+  },
+  {
+    title: "Ice Cream Playable",
+    description: "Interactive ice cream stacking playable with colorful visuals.",
+    src: "playables/ice-cream.html",
+    date: "2025-12",
+    fileSize: "4.7 MB",
+  },
+  {
+    title: "Child On Bed",
+    description: "Game House narrative playable with character interaction scene.",
+    src: "playables/child-on-bed.html",
+    date: "2025-12",
+    fileSize: "4.9 MB",
+  },
+  {
+    title: "GD Play Quality",
+    description: "Game design quality showcase with polished game feel.",
+    src: "playables/gd-play-quality.html",
+    date: "2026-02",
+    fileSize: "4.9 MB",
+  },
+];
+
+const TECH_STACK = [
+  { name: "Cocos Creator 3.8", desc: "Game engine",              custom: false },
+  { name: "TypeScript",        desc: "Language",                  custom: false },
+  { name: "GLSL",              desc: "Custom shaders",            custom: false },
+  { name: "Photoshop",         desc: "Asset preparation",         custom: false },
+  { name: "AI Image Gen",      desc: "Asset generation",          custom: false },
+  { name: "MiniDI",            desc: "DI container for Cocos",    custom: true },
+  { name: "ScenarioSystem",    desc: "Async scenario runner",     custom: true },
+  { name: "NodeAnimator",      desc: "28+ animation presets",     custom: true },
+  { name: "Playable Modifier", desc: "Electron post-build tool",  custom: true },
+];
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER ENGINE
+// ═══════════════════════════════════════════════════════════════
+
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => document.querySelectorAll(s);
+
+const IFRAME_W = 400;
+const IFRAME_H = 710;
+
+function thumbHTML(p) {
+  if (p.thumb) return `<img src="${p.thumb}" alt="${p.title}" loading="lazy">`;
+  return `<iframe class="iframe-preview" src="${p.src}" loading="lazy"
+    sandbox="allow-scripts allow-same-origin" tabindex="-1" aria-hidden="true"></iframe>`;
+}
+
+function renderCards() {
+  if (!PLAYABLES.length) {
+    $("#cardsGrid").innerHTML = `<div class="empty-state">Add entries to the <code>PLAYABLES</code> array.</div>`;
+    return;
+  }
+
+  $("#cardsGrid").innerHTML = PLAYABLES.map((p, i) => `
+    <div class="card" data-index="${i}" style="animation-delay:${i * 0.06}s">
+      <div class="card-thumb">
+        ${thumbHTML(p)}
+        <div class="play-overlay">
+          <div class="play-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M5 3.87v12.26a1 1 0 001.5.87l10-6.13a1 1 0 000-1.74l-10-6.13A1 1 0 005 3.87z" fill="#08090d"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">${p.title}</div>
+        <div class="card-desc">${p.description}</div>
+        <div class="card-meta">
+          <span>${p.date}</span>
+          ${p.fileSize ? `<span class="accent-value">${p.fileSize}</span>` : ""}
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  $$(".card").forEach(c => c.addEventListener("click", () => openModal(+c.dataset.index)));
+  fitPreviews();
+}
+
+function fitPreviews() {
+  $$(".card-thumb").forEach(thumb => {
+    const iframe = thumb.querySelector(".iframe-preview");
+    if (!iframe) return;
+    const scale = Math.max(thumb.offsetWidth / IFRAME_W, thumb.offsetHeight / IFRAME_H);
+    Object.assign(iframe.style, {
+      width: IFRAME_W + "px",
+      height: IFRAME_H + "px",
+      transform: `translate(-50%, 0) scale(${scale})`,
+    });
+  });
+}
+
+window.addEventListener("resize", fitPreviews);
+
+function renderTech() {
+  $("#techGrid").innerHTML = TECH_STACK
+    .map(t => `
+      <div class="tech-item${t.custom ? " tech-custom" : ""}">
+        <div class="name">${t.name}${t.custom ? '<span class="custom-badge">custom</span>' : ""}</div>
+        <div class="desc">${t.desc}</div>
+      </div>`)
+    .join("");
+}
+
+// ─── Modal ───
+
+function openModal(index) {
+  const p = PLAYABLES[index];
+  if (!p) return;
+  $("#modalTitle").textContent = p.title;
+  $("#modalFrame").src = p.src;
+  $("#modalInfo").innerHTML = `
+    <p>${p.description}</p>
+    <div class="meta-row">
+      ${p.fileSize ? `<span class="meta-pill">${p.fileSize}</span>` : ""}
+      <span class="meta-pill">${p.date}</span>
+    </div>`;
+  $("#modal").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal() {
+  $("#modal").classList.remove("open");
+  $("#modalFrame").src = "";
+  document.body.style.overflow = "";
+}
+
+$("#modalClose").addEventListener("click", closeModal);
+$("#modal").addEventListener("click", e => { if (e.target === e.currentTarget) closeModal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+// ─── Init ───
+
+renderCards();
+renderTech();
+</script>
+</body>
+</html>
